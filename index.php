@@ -1,21 +1,32 @@
 <?php 
+session_start();
+
+// PROTEKSI: Jika belum login, tendang balik ke halaman login.php
+if (!isset($_SESSION['login'])) {
+    header("Location: login.php");
+    exit;
+}
+
 include 'koneksi.php'; 
+
+// Mengambil ID user dari session login
+$uid = $_SESSION['user_id'];
 
 // Ambil tanggal dari filter (jika ada)
 $tgl_awal = $_GET['tgl_awal'] ?? '';
 $tgl_akhir = $_GET['tgl_akhir'] ?? '';
 
-// Bangun kondisi WHERE untuk SQL
-$where_clause = "";
+// Bangun kondisi WHERE untuk SQL agar selalu mengunci data milik user yang sedang login
+$where_clause = " WHERE user_id = '$uid'";
 if (!empty($tgl_awal) && !empty($tgl_akhir)) {
-    $where_clause = " WHERE tanggal BETWEEN '$tgl_awal' AND '$tgl_akhir'";
+    $where_clause .= " AND tanggal BETWEEN '$tgl_awal' AND '$tgl_akhir'";
 }
 
-// Ambil Data untuk Saldo & Chart berdasarkan Filter
-$m = mysqli_query($conn, "SELECT SUM(jumlah) as total FROM transaksi $where_clause " . (empty($where_clause) ? "WHERE jenis='masuk'" : "AND jenis='masuk'"));
+// Ambil Data untuk Saldo & Chart berdasarkan Filter dan User Terkait
+$m = mysqli_query($conn, "SELECT SUM(jumlah) as total FROM transaksi $where_clause AND jenis='masuk'");
 $total_masuk = mysqli_fetch_assoc($m)['total'] ?? 0;
 
-$k = mysqli_query($conn, "SELECT SUM(jumlah) as total FROM transaksi $where_clause " . (empty($where_clause) ? "WHERE jenis='keluar'" : "AND jenis='keluar'"));
+$k = mysqli_query($conn, "SELECT SUM(jumlah) as total FROM transaksi $where_clause AND jenis='keluar'");
 $total_keluar = mysqli_fetch_assoc($k)['total'] ?? 0;
 
 $saldo_akhir = $total_masuk - $total_keluar;
@@ -37,18 +48,19 @@ $saldo_akhir = $total_masuk - $total_keluar;
 <body>
 
 <nav class="navbar navbar-dark bg-primary shadow-sm mb-4">
-    <div class="container">
-        <span class="navbar-brand mb-0 h1"><i class="fas fa-wallet me-2"></i>Buku Kas Digital</span>
+    <div class="container d-flex justify-content-between align-items-center">
+        <span class="navbar-brand mb-0 h1">
+            <i class="fas fa-wallet me-2"></i>Buku Kas (<?php echo htmlspecialchars($_SESSION['nama_user']); ?>)
+        </span>
+        <a href="logout.php" class="btn btn-sm btn-danger"><i class="fas fa-sign-out-alt me-1"></i>Keluar</a>
     </div>
 </nav>
 
 <div class="container">
     <div class="row">
-        <!-- SIDEBAR (Filter, Saldo, Diagram) -->
         <div class="col-md-4">
             <div class="sticky-top">
                 
-                <!-- Card Filter -->
                 <div class="card sidebar-card mb-3">
                     <div class="card-body">
                         <h6 class="fw-bold mb-3"><i class="fas fa-calendar-alt me-2 text-primary"></i>Filter Periode</h6>
@@ -69,7 +81,6 @@ $saldo_akhir = $total_masuk - $total_keluar;
                     </div>
                 </div>
 
-                <!-- Card Saldo -->
                 <div class="card sidebar-card mb-3 border-start border-primary border-4">
                     <div class="card-body">
                         <h6 class="text-muted small text-uppercase">Saldo Periode Ini</h6>
@@ -77,7 +88,6 @@ $saldo_akhir = $total_masuk - $total_keluar;
                     </div>
                 </div>
 
-                <!-- Card Diagram -->
                 <div class="card sidebar-card mb-3">
                     <div class="card-body">
                         <canvas id="myChart"></canvas>
@@ -88,7 +98,6 @@ $saldo_akhir = $total_masuk - $total_keluar;
             </div>
         </div>
 
-        <!-- MAIN CONTENT (Tabel Riwayat) -->
         <div class="col-md-8">
             <div class="card border-0 shadow-sm rounded-3">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
@@ -111,6 +120,7 @@ $saldo_akhir = $total_masuk - $total_keluar;
                             </thead>
                             <tbody>
                                 <?php
+                                // Menampilkan data yang otomatis tersaring sesuai WHERE CLAUSE (Berdasarkan user_id)
                                 $query_sql = "SELECT * FROM transaksi $where_clause ORDER BY tanggal DESC";
                                 $query = mysqli_query($conn, $query_sql);
                                 
@@ -120,7 +130,7 @@ $saldo_akhir = $total_masuk - $total_keluar;
                                         $icon = ($row['jenis'] == 'masuk') ? 'fa-arrow-down' : 'fa-arrow-up';
                                         echo "<tr>
                                                 <td class='ps-3 small'>".date('d/m/y', strtotime($row['tanggal']))."</td>
-                                                <td>{$row['keterangan']}</td>
+                                                <td>".htmlspecialchars($row['keterangan'])."</td>
                                                 <td class='fw-bold $warna small text-uppercase'><i class='fas $icon me-1 small'></i>{$row['jenis']}</td>
                                                 <td class='fw-semibold'>Rp ".number_format($row['jumlah'], 0, ',', '.')."</td>
                                                 <td class='text-center'>
@@ -142,7 +152,6 @@ $saldo_akhir = $total_masuk - $total_keluar;
     </div>
 </div>
 
-<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const ctx = document.getElementById('myChart');
