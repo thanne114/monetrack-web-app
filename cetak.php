@@ -106,18 +106,29 @@ $saldo_akhir = $total_masuk - $total_keluar;
         </thead>
         <tbody>
             <?php
-            $query_sql = "SELECT * FROM transaksi $where_clause ORDER BY tanggal DESC";
+            // PERBAIKAN QUERY: Ditambahkan INNER JOIN agar bisa memanggil kategori.nama_kategori
+            $query_sql = "SELECT transaksi.*, kategori.nama_kategori 
+                          FROM transaksi 
+                          INNER JOIN kategori ON transaksi.kategori_id = kategori.id 
+                          $where_clause 
+                          ORDER BY transaksi.tanggal DESC";
+                          
             $query = mysqli_query($conn, $query_sql);
             
             if(mysqli_num_rows($query) > 0){
                 while($row = mysqli_fetch_assoc($query)) {
                     $warna = ($row['jenis'] == 'masuk') ? 'text-success' : 'text-danger';
-                    echo "<tr>
-                            <td class='text-center'>".date('d/m/Y', strtotime($row['tanggal']))."</td>
-                            <td>".htmlspecialchars($row['keterangan'])."</td>
-                            <td class='text-center fw-bold text-uppercase $warna'>{$row['jenis']}</td>
-                            <td class='text-end fw-semibold'>Rp ".number_format($row['jumlah'], 0, ',', '.')."</td>
-                          </tr>";
+                    ?>
+                    <tr>
+                        <td class='text-center'><?= date('d/m/Y', strtotime($row['tanggal'])); ?></td>
+                        <td>
+                            <span class="fw-semibold"><?= htmlspecialchars($row['keterangan']); ?></span>
+                            <br><small class="text-muted"><em>Kategori: <?= htmlspecialchars($row['nama_kategori']); ?></em></small>
+                        </td>
+                        <td class='text-center fw-bold text-uppercase <?= $warna; ?>'><?= $row['jenis']; ?></td>
+                        <td class='text-end fw-semibold'>Rp <?= number_format($row['jumlah'], 0, ',', '.'); ?></td>
+                    </tr>
+                    <?php
                 }
             } else {
                 echo "<tr><td colspan='4' class='text-center py-4 text-muted'>Tidak ada histori data pada periode ini.</td></tr>";
@@ -129,14 +140,15 @@ $saldo_akhir = $total_masuk - $total_keluar;
     <div class="row mt-5 pt-3">
         <div class="col-8"></div>
         <div class="col-4 text-center">
-            <p class="mb-5">Mataram, <?php echo date('d M Y'); ?></p>
-            <p class="fw-bold text-decoration-underline mb-0"><?php echo htmlspecialchars($_SESSION['nama_user']); ?></p>
+            <p class="mb-5">Mataram, <?= date('d M Y'); ?></p>
+            <p class="fw-bold text-decoration-underline mb-0"><?= htmlspecialchars($_SESSION['nama_user']); ?></p>
             <small class="text-muted">User Monetrack</small>
         </div>
     </div>
 </div>
 
 <script>
+    // Otomatis membuka jendela cetak saat halaman selesai dimuat
     window.onload = function() {
         window.print();
     }

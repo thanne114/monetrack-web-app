@@ -14,14 +14,19 @@ if (isset($_POST['submit'])) {
     $uid = $_SESSION['user_id'];
     
     // Ambil data dari form dan amankan dengan mysqli_real_escape_string
+    $kategori_id = mysqli_real_escape_string($conn, $_POST['kategori_id']);
     $tgl = mysqli_real_escape_string($conn, $_POST['tanggal']);
     $ket = mysqli_real_escape_string($conn, $_POST['keterangan']);
-    $jns = mysqli_real_escape_string($conn, $_POST['jenis']);
     $jml = mysqli_real_escape_string($conn, $_POST['jumlah']);
     
-    // PERBAIKAN QUERY: Sebutkan nama kolomnya secara spesifik agar tidak error karena penambahan user_id
-    $query = "INSERT INTO transaksi (user_id, tanggal, keterangan, jenis, jumlah) 
-              VALUES ('$uid', '$tgl', '$ket', '$jns', '$jml')";
+    // LOGIKA OTOMATIS: Cari tahu 'jenis' asli (masuk/keluar) berdasarkan kategori_id yang dipilih
+    $cek_jenis = mysqli_query($conn, "SELECT jenis FROM kategori WHERE id='$kategori_id'");
+    $data_kategori = mysqli_fetch_assoc($cek_jenis);
+    $jns = $data_kategori['jenis'];
+    
+    // PERBAIKAN QUERY: Menyertakan kolom kategori_id dan jenis yang sudah didapatkan secara dinamis
+    $query = "INSERT INTO transaksi (user_id, kategori_id, tanggal, keterangan, jenis, jumlah) 
+              VALUES ('$uid', '$kategori_id', '$tgl', '$ket', '$jns', '$jml')";
               
     $simpan = mysqli_query($conn, $query);
     
@@ -61,18 +66,31 @@ if (isset($_POST['submit'])) {
                             <label class="form-label small fw-semibold">Tanggal</label>
                             <input type="date" name="tanggal" class="form-control" required>
                         </div>
-                        
+
                         <div class="mb-3">
-                            <label class="form-label small fw-semibold">Keterangan</label>
-                            <input type="text" name="keterangan" placeholder="Contoh: Beli bensin, Uang saku" class="form-control" required autocomplete="off">
+                            <label class="form-label small fw-semibold">Kategori Transaksi</label>
+                            <select name="kategori_id" class="form-select" required>
+                                <option value="">-- Pilih Kategori --</option>
+                                <?php
+                                $uid = $_SESSION['user_id'];
+                                // Mengambil data kategori default (user_id IS NULL) dan kategori buatan user sendiri
+                                $get_kategori = mysqli_query($conn, "SELECT * FROM kategori WHERE user_id IS NULL OR user_id = '$uid' ORDER BY jenis ASC, nama_kategori ASC");
+                                
+                                while($kat = mysqli_fetch_assoc($get_kategori)) {
+                                    $icon_jenis = ($kat['jenis'] == 'masuk') ? '🟢' : '🔴';
+                                    $label_sifat = ($kat['user_id'] == null) ? "Bawaan" : "Kustom";
+                                    
+                                    echo "<option value='".$kat['id']."'>
+                                            ".$icon_jenis." [".strtoupper($kat['jenis'])."] ".$kat['nama_kategori']." (".$label_sifat.")
+                                          </option>";
+                                }
+                                ?>
+                            </select>
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label small fw-semibold">Jenis Transaksi</label>
-                            <select name="jenis" class="form-select">
-                                <option value="masuk">🟢 Pemasukan</option>
-                                <option value="keluar">🔴 Pengeluaran</option>
-                            </select>
+                            <label class="form-label small fw-semibold">Keterangan / Deskripsi</label>
+                            <input type="text" name="keterangan" placeholder="Contoh: Beli bensin, Uang saku" class="form-control" required autocomplete="off">
                         </div>
                         
                         <div class="mb-4">
