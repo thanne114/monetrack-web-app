@@ -34,9 +34,14 @@ if (isset($_POST['register'])) {
     <meta charset="UTF-8">
     <title>Daftar Akun - Monetrack</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { background-color: #f0f2f5; height: 100vh; display: flex; align-items: center; justify-content: center; }
         .reg-card { width: 100%; max-width: 420px; border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .password-toggle { cursor: pointer; background-color: #fff; border-left: none; }
+        .password-toggle:hover { background-color: #f8f9fa; }
+        /* Memastikan kelengkuran border input grup tetap rapi */
+        .password-field { border-right: none; }
     </style>
 </head>
 <body>
@@ -56,19 +61,26 @@ if (isset($_POST['register'])) {
             <div class="alert alert-danger text-center small py-2"><?php echo $error; ?></div>
         <?php endif; ?>
 
-        <form method="POST" action="">
+        <form method="POST" action="" autocomplete="off">
             <div class="mb-3">
                 <label class="form-label small fw-semibold">Nama Lengkap</label>
                 <input type="text" name="nama_lengkap" class="form-control" required autocomplete="off">
             </div>
             <div class="mb-3">
                 <label class="form-label small fw-semibold">Username</label>
-                <input type="text" name="username" class="form-control" placeholder="Huruf kecil tanpa spasi" required autocomplete="off">
+                <input type="text" name="username" class="form-control" placeholder="Huruf kecil tanpa spasi" required autocomplete="none">
             </div>
+            
             <div class="mb-4">
                 <label class="form-label small fw-semibold">Password</label>
-                <input type="password" name="password" class="form-control" required>
+                <div class="input-group">
+                    <input type="password" name="password" id="password" class="form-control password-field" required autocomplete="new-password">
+                    <span class="input-group-text password-toggle" id="togglePassword">
+                        <i class="fas fa-eye text-muted" id="eyeIcon"></i>
+                    </span>
+                </div>
             </div>
+            
             <button type="submit" name="register" class="btn btn-success w-100 mb-3">Daftar Sekarang</button>
             <div class="text-center">
                 <a href="login.php" class="small text-decoration-none">Sudah punya akun? Login</a>
@@ -76,6 +88,27 @@ if (isset($_POST['register'])) {
         </form>
     </div>
 </div>
+
+<script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const passwordInput = document.querySelector('#password');
+    const eyeIcon = document.querySelector('#eyeIcon');
+
+    togglePassword.addEventListener('click', function () {
+        // Tukar tipe atribut antara password dan text
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Tukar visual ikon mata (terbuka / coret)
+        if (type === 'text') {
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        } else {
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        }
+    });
+</script>
 
 </body>
 </html>
