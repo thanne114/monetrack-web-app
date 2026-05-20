@@ -105,6 +105,12 @@ $saldo_akhir = $total_masuk - $total_keluar;
                     </div>
                 </div>
 
+                <div class="mb-2">
+                    <a href="cetak.php?tgl_awal=<?php echo $tgl_awal; ?>&tgl_akhir=<?php echo $tgl_akhir; ?>" target="_blank" class="btn btn-outline-primary w-100 shadow-sm">
+                        <i class="fas fa-print me-2"></i>Cetak Laporan Periode
+                    </a>
+                </div>
+
                 <a href="tambah.php" class="btn btn-success w-100 shadow-sm mb-4"><i class="fas fa-plus me-2"></i>Tambah Transaksi</a>
             </div>
         </div>
