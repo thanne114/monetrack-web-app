@@ -37,7 +37,7 @@ if (isset($_POST['submit'])) {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Tambah Transaksi - Mataram Cash</title>
+    <title>Tambah Transaksi - Monetrack</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>

@@ -36,6 +36,7 @@ if (isset($_POST['submit'])) {
     <meta charset="UTF-8">
     <title>Login - Monetrack</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { background-color: #f0f2f5; height: 100vh; display: flex; align-items: center; justify-content: center; }
         .login-card { width: 100%; max-width: 400px; border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
@@ -45,7 +46,7 @@ if (isset($_POST['submit'])) {
 
 <div class="card login-card p-4">
     <div class="card-body">
-        <h4 class="text-center fw-bold mb-4">Login Buku Kas</h4>
+        <h4 class="text-center fw-bold mb-4">Login Monetrack</h4>
         
         <?php if ($error) : ?>
             <div class="alert alert-danger text-center small py-2">Username atau password salah!</div>
@@ -56,10 +57,17 @@ if (isset($_POST['submit'])) {
                 <label class="form-label small fw-semibold">Username</label>
                 <input type="text" name="username" class="form-control" required autocomplete="off">
             </div>
+            
             <div class="mb-4">
                 <label class="form-label small fw-semibold">Password</label>
-                <input type="password" name="password" class="form-control" required>
+                <div class="input-group">
+                    <input type="password" name="password" id="passwordInput" class="form-control" required>
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <i class="fas fa-eye" id="eyeIcon"></i>
+                    </button>
+                </div>
             </div>
+            
             <button type="submit" name="submit" class="btn btn-primary w-100 mb-3">Masuk Aplikasi</button>
             <div class="text-center">
                 <a href="register.php" class="small text-decoration-none text-success">Belum punya akun? Daftar disini</a>
@@ -67,6 +75,27 @@ if (isset($_POST['submit'])) {
         </form>
     </div>
 </div>
+
+<script>
+const togglePassword = document.getElementById('togglePassword');
+const passwordInput = document.getElementById('passwordInput');
+const eyeIcon = document.getElementById('eyeIcon');
+
+togglePassword.addEventListener('click', function () {
+    // Cek tipe input saat ini
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        // Ubah ikon jadi mata dicoret
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        // Kembalikan ikon jadi mata biasa
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+    }
+});
+</script>
 
 </body>
 </html>

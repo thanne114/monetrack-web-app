@@ -36,7 +36,7 @@ $saldo_akhir = $total_masuk - $total_keluar;
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Buku Kas Digital - Mataram Cash</title>
+    <title>Monetrack</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -50,9 +50,20 @@ $saldo_akhir = $total_masuk - $total_keluar;
 <nav class="navbar navbar-dark bg-primary shadow-sm mb-4">
     <div class="container d-flex justify-content-between align-items-center">
         <span class="navbar-brand mb-0 h1">
-            <i class="fas fa-wallet me-2"></i>Buku Kas (<?php echo htmlspecialchars($_SESSION['nama_user']); ?>)
+            <i class="fas fa-wallet me-2"></i>Monetrack
         </span>
-        <a href="logout.php" class="btn btn-sm btn-danger"><i class="fas fa-sign-out-alt me-1"></i>Keluar</a>
+        
+        <div class="d-flex align-items-center gap-2">
+            <span class="text-white me-2 small">
+                <i class="fas fa-user-circle me-1"></i> <?php echo htmlspecialchars($_SESSION['nama_user']); ?>
+            </span>
+            <a href="edit_akun.php" class="btn btn-sm btn-light text-primary fw-semibold">
+                <i class="fas fa-user-cog me-1"></i>Edit Akun
+            </a>
+            <a href="logout.php" class="btn btn-sm btn-danger">
+                <i class="fas fa-sign-out-alt me-1"></i>Keluar
+            </a>
+        </div>
     </div>
 </nav>
 
